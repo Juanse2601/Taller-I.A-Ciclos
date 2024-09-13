@@ -1,0 +1,138 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Verifica si un número es primo
+bool esPrimo(int n) {
+    if (n <= 1) return false;
+    if (n <= 3) return true;
+    if (n % 2 == 0 || n % 3 == 0) return false;
+    int i = 5;
+    while (i * i <= n) {
+        if (n % i == 0 || n % (i + 2) == 0) return false;
+        i += 6;
+    }
+    return true;
+}
+
+// Genera un número aleatorio entre 1 y 6 (simula el lanzamiento de un dado)
+int lanzarDado() {
+    return rand() % 6 + 1;
+}
+
+int main() {
+    srand(static_cast<unsigned>(time(0)));  // Inicializa la semilla para números aleatorios
+
+    // Solicita el número de jugadores
+    cout << "Bienvenido a Prime Jack o 23" << endl;
+    cout << "¿Cuántas personas van a jugar?" << endl;
+    int numJugadores;
+    cin >> numJugadores;
+
+    // Inicializa los puntos de los jugadores
+    int puntos[numJugadores] = {0};
+    int primos[numJugadores];
+    int primosCount = 0;
+
+    // Bucle principal del juego para cada jugador
+    for (int jugador = 0; jugador < numJugadores; ++jugador) {
+        bool continuar = true;
+        cout << "\nTurno del jugador " << (jugador + 1) << ":" << endl;
+
+        while (continuar) {
+            if (puntos[jugador] >= 23) {
+                cout << "Ya tienes 23 o más. No puedes lanzar más dados." << endl;
+                continuar = false;
+                break;
+            }
+
+            // Lanza dos dados
+            int dado1 = lanzarDado();
+            int dado2 = lanzarDado();
+            int suma = dado1 + dado2;
+            cout << "Lanzaste los dados y obtuviste: " << dado1 << " y " << dado2 << ". Total: " << suma << "." << endl;
+
+            if (dado1 == dado2) {
+                cout << "Sacaste dobles. Puedes dividir el lanzamiento y lanzar 3 dados adicionales." << endl;
+                int dado3 = lanzarDado();
+                int dado4 = lanzarDado();
+                int dado5 = lanzarDado();
+                suma += dado3 + dado4 + dado5;
+                cout << "Lanzaste dados adicionales y obtuviste: " << dado3 << ", " << dado4 << ", y " << dado5 << ". Total adicional: " << (dado3 + dado4 + dado5) << "." << endl;
+            }
+
+            if (suma == 12) {
+                cout << "Sacaste un 12. Puedes lanzar solo 1 dado adicional." << endl;
+                int dado6 = lanzarDado();
+                if (puntos[jugador] + suma + dado6 > 18) {
+                    cout << "Tu puntuación actual sería " << (puntos[jugador] + suma + dado6) << ", lo cual excede 18. No sumaremos este dado adicional." << endl;
+                    dado6 = 0;  // No se suma el dado adicional si supera 18
+                }
+                suma += dado6;
+                cout << "Lanzaste un dado adicional y obtuviste: " << dado6 << ". Total adicional: " << dado6 << "." << endl;
+            }
+
+            int nuevaPuntuacion = puntos[jugador] + suma;
+            if (nuevaPuntuacion <= 23) {
+                puntos[jugador] = nuevaPuntuacion;
+            } else {
+                cout << "Tu puntuación actual sería " << nuevaPuntuacion << ", lo cual excede 23. No sumaremos este lanzamiento." << endl;
+            }
+
+            cout << "Tu puntuación actual es: " << puntos[jugador] << "." << endl;
+
+            if (puntos[jugador] == 23) {
+                cout << "¡Has llegado a 23!" << endl;
+                continuar = false;
+                break;
+            }
+
+            cout << "¿Quieres seguir lanzando? (s/n):" << endl;
+            char respuesta;
+            cin >> respuesta;
+            if (respuesta != 's') {
+                continuar = false;
+            }
+        }
+
+        cout << "Puntuación final del jugador " << (jugador + 1) << " es: " << puntos[jugador] << endl;
+        
+        // Verifica si la puntuación es un número primo
+        if (puntos[jugador] == 23) {
+            primos[primosCount++] = jugador;
+        }
+    }
+
+    // Determina el ganador
+    cout << "\nResultados finales:" << endl;
+    int ganador = -1;
+    int mayorPuntaje = 0;
+
+    for (int i = 0; i < numJugadores; ++i) {
+        if (puntos[i] == 23) {
+            primos[primosCount++] = i;
+        } else if (puntos[i] < 23 && puntos[i] > mayorPuntaje) {
+            mayorPuntaje = puntos[i];
+            ganador = i;
+        }
+    }
+
+    if (primosCount > 0) {
+        cout << "El(los) ganador(es) es(son) el(los) Jugador(es) ";
+        for (int i = 0; i < primosCount; ++i) {
+            if (i > 0) cout << ", ";
+            cout << (primos[i] + 1);
+        }
+        cout << " con un número primo." << endl;
+    } else {
+        if (ganador != -1) {
+            cout << "El ganador es el Jugador " << (ganador + 1) << " con el puntaje más alto sin exceder 23." << endl;
+        } else {
+            cout << "Ningún jugador ganó." << endl;
+        }
+    }
+
+    return 0;
+}
