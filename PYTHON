@@ -20,22 +20,22 @@ def lanzar_dado():
     return random.randint(1, 6)
 
 # Solicita el número de jugadores
+print("Bienvenido a Prime Jack o 23")
 print("¿Cuántas personas van a jugar?")
 num_jugadores = int(input())
 
 # Inicializa los puntos de los jugadores
 puntos = [0] * num_jugadores
-ganadores = []
 primos = []
 
 # Bucle principal del juego para cada jugador
 for jugador in range(num_jugadores):
     continuar = True
-    print(f"\nTurno del Jugador {jugador + 1}:")
+    print(f"\nTurno del jugador {jugador + 1}:")
     
     while continuar:
-        if puntos[jugador] == 23:
-            print("Ya tienes 23. No puedes lanzar más dados.")
+        if puntos[jugador] >= 23:
+            print("Ya tienes 23 o más. No puedes lanzar más dados.")
             continuar = False
             break
         
@@ -43,39 +43,44 @@ for jugador in range(num_jugadores):
         dado1 = lanzar_dado()
         dado2 = lanzar_dado()
         suma = dado1 + dado2
-        print(f"Has lanzado {dado1} y {dado2}, sumando {suma}.")
+        print(f"Lanzaste los dados y obtuviste: {dado1} y {dado2}. Total: {suma}.")
         
         if dado1 == dado2:
-            print("¡Has sacado dobles! Lanzarás 3 dados más.")
+            print("Sacaste dobles. Puedes dividir el lanzamiento y lanzar 3 dados adicionales.")
             dado3 = lanzar_dado()
             dado4 = lanzar_dado()
             dado5 = lanzar_dado()
             suma += dado3 + dado4 + dado5
-            print(f"Tus dados adicionales son {dado3}, {dado4}, y {dado5}, sumando {dado3 + dado4 + dado5}.")
+            print(f"Lanzaste dados adicionales y obtuviste: {dado3}, {dado4}, y {dado5}. Total adicional: {dado3 + dado4 + dado5}.")
         
         if suma == 12:
-            print("Has sacado un 12. Lanzarás solo 1 dado adicional.")
+            print("Sacaste un 12. Puedes lanzar solo 1 dado adicional.")
             dado6 = lanzar_dado()
+            if puntos[jugador] + suma + dado6 > 18:
+                print(f"Tu puntuación actual sería {puntos[jugador] + suma + dado6}, lo cual excede 18. No sumaremos este dado adicional.")
+                dado6 = 0  # No se suma el dado adicional si supera 18
             suma += dado6
-            print(f"El dado adicional es {dado6}, sumando {dado6} a tu total.")
+            print(f"Lanzaste un dado adicional y obtuviste: {dado6}. Total adicional: {dado6}.")
         
-        puntos[jugador] += suma
-        print(f"Tu total actual es {puntos[jugador]}.")
+        nueva_puntuacion = puntos[jugador] + suma
+        if nueva_puntuacion <= 23:
+            puntos[jugador] = nueva_puntuacion
+        else:
+            print(f"Tu puntuación actual sería {nueva_puntuacion}, lo cual excede 23. No sumaremos este lanzamiento.")
         
-        if puntos[jugador] >= 23:
-            if puntos[jugador] == 23:
-                print("¡Has llegado a 23!")
-                continuar = False
-                ganadores.append(jugador)
-            else:
-                print("Has superado 23. No puedes lanzar más dados.")
-                continuar = False
-                break
+        print(f"Tu puntuación actual es: {puntos[jugador]}.")
         
-        print("¿Quieres lanzar nuevamente? (s/n)")
+        if puntos[jugador] == 23:
+            print("¡Has llegado a 23!")
+            continuar = False
+            break
+        
+        print("¿Quieres seguir lanzando? (s/n):")
         respuesta = input().strip().lower()
         if respuesta != 's':
             continuar = False
+
+    print(f"Puntuación final del jugador {jugador + 1} es: {puntos[jugador]}")
 
 # Determina el ganador
 print("\nResultados finales:")
@@ -90,7 +95,8 @@ for i in range(num_jugadores):
         ganador = i
 
 if primos:
-    print(f"El ganador es el Jugador {max(primos) + 1} con un número primo.")
+    ganadores = [i + 1 for i in primos]
+    print(f"El(los) ganador(es) es(son) el(los) Jugador(es) {', '.join(map(str, ganadores))} con un número primo.")
 else:
     if ganador != -1:
         print(f"El ganador es el Jugador {ganador + 1} con el puntaje más alto sin exceder 23.")
